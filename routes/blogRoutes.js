@@ -46,29 +46,17 @@ router.post("/blogs", authMiddleware, async (req, res) => {
 // Get all blog posts with pagination
 router.get("/blogs", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
     const blogs = await Blog.find()
       .populate("author", "username email profileImage")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+      .sort({ createdAt: -1 }); // Latest first
 
-    const total = await Blog.countDocuments();
-
-    res.status(200).json({
-      blogs,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      totalBlogs: total
-    });
+    res.status(200).json({ blogs });
   } catch (err) {
     console.error("Error fetching blogs:", err);
     res.status(500).json({ message: "Error fetching blogs", error: err.message });
   }
 });
+
 
 // Get user's blogs
 router.get("/blogs/my-blogs", authMiddleware, async (req, res) => {
